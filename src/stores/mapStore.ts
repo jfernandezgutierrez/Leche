@@ -41,13 +41,13 @@ export const useMapStore = defineStore('map', () => {
   // === Firestore ===
   async function saveToFirestore() {
     if (!uid.value) return
-    const refDoc = doc(db, 'maps', uid.value)
+    const refDoc = doc(db, 'maps', 'global')
     await setDoc(refDoc, { blocks: blocks.value, updated: serverTimestamp() })
   }
 
   async function loadFromFirestore() {
     if (!uid.value) return
-    const refDoc = doc(db, 'maps', uid.value)
+    const refDoc = doc(db, 'maps', 'global')
     const snap = await getDoc(refDoc)
     if (snap.exists()) blocks.value = snap.data().blocks || []
   }
