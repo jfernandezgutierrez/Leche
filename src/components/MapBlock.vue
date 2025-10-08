@@ -11,29 +11,73 @@
     }"
     ref="blockEl"
     @mousedown.stop
-    @dblclick="editing = !editing"
   >
-    <template v-if="!editing">
-      <div class="text-center text-sm p-1">
-        <strong>{{ block.label }}</strong
-        ><br />
-        <span>{{ block.text }}</span>
-      </div>
+    <!-- 🔸 Contenido principal -->
+    <div class="text-center text-sm p-1">
+      <strong>{{ block.label }}</strong
+      ><br />
+      <span>{{ block.text }}</span>
+    </div>
+
+    <!-- 🔸 Botones -->
+    <div class="absolute top-0 right-0 flex">
       <button
-        class="absolute top-0 right-0 bg-red-600 text-xs rounded-bl text-white px-1"
+        class="bg-blue-600 hover:bg-blue-700 text-xs text-white px-1 rounded-bl"
+        @click.stop="openDialog"
+      >
+        ✏️
+      </button>
+      <button
+        class="bg-red-600 hover:bg-red-700 text-xs text-white px-1 rounded-bl"
         @click.stop="store.deleteBlock(block.id)"
       >
         ✖
       </button>
-    </template>
+    </div>
 
-    <div v-else class="bg-white text-black p-2 rounded shadow-lg flex flex-col gap-1 items-center">
-      <input v-model="localBlock.label" placeholder="Etiqueta" class="border w-20 p-1" />
-      <input v-model="localBlock.text" placeholder="Texto" class="border w-32 p-1" />
-      <input type="color" v-model="localBlock.color" />
-      <button class="text-xs bg-blue-600 text-white px-2 py-1 rounded" @click="applyChanges">
-        OK
-      </button>
+    <!-- 🔹 Modal -->
+    <div
+      v-if="showDialog"
+      class="fixed inset-0 bg-black/60 flex justify-center items-center z-50"
+      @click.self="closeDialog"
+    >
+      <div class="bg-white text-gray-900 rounded-lg p-6 w-96 shadow-2xl relative">
+        <h2 class="text-lg font-bold mb-4 text-center">Editar bloque {{ block.label }}</h2>
+
+        <div class="flex flex-col gap-3">
+          <label class="text-sm font-semibold">Etiqueta:</label>
+          <input v-model="localBlock.label" class="border rounded p-2" />
+
+          <label class="text-sm font-semibold">Texto:</label>
+          <input v-model="localBlock.text" class="border rounded p-2" />
+
+          <label class="text-sm font-semibold">Anotaciones:</label>
+          <textarea
+            v-model="localBlock.notes"
+            rows="3"
+            class="border rounded p-2 resize-none"
+            placeholder="Notas adicionales sobre este bloque..."
+          ></textarea>
+
+          <label class="text-sm font-semibold">Color:</label>
+          <input type="color" v-model="localBlock.color" class="w-20 h-8 border rounded" />
+        </div>
+
+        <div class="flex justify-end gap-2 mt-4">
+          <button
+            @click="closeDialog"
+            class="px-3 py-1 rounded bg-gray-400 hover:bg-gray-500 text-white"
+          >
+            Cancelar
+          </button>
+          <button
+            @click="applyChanges"
+            class="px-3 py-1 rounded bg-green-600 hover:bg-green-700 text-white"
+          >
+            Guardar
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -45,8 +89,9 @@ import { useMapStore } from '@/stores/mapStore'
 
 const props = defineProps<{ block: any }>()
 const store = useMapStore()
+
 const blockEl = ref<HTMLElement | null>(null)
-const editing = ref(false)
+const showDialog = ref(false)
 const localBlock = ref({ ...props.block })
 
 watch(
@@ -55,9 +100,15 @@ watch(
   { deep: true },
 )
 
+function openDialog() {
+  showDialog.value = true
+}
+function closeDialog() {
+  showDialog.value = false
+}
 function applyChanges() {
   store.updateBlock(props.block.id, { ...localBlock.value })
-  editing.value = false
+  showDialog.value = false
 }
 
 onMounted(async () => {
@@ -68,7 +119,7 @@ onMounted(async () => {
     inertia: false,
     modifiers: [
       interact.modifiers.restrictRect({
-        restriction: 'parent', // no salir del tablero
+        restriction: 'parent',
         endOnly: true,
       }),
     ],
