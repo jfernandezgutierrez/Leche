@@ -2,6 +2,7 @@
   <div
     class="map-block absolute rounded shadow-md flex flex-col items-center justify-center text-white select-none"
     :style="{
+      color: '#000',
       left: block.x + 'px',
       top: block.y + 'px',
       width: block.width + 'px',
@@ -36,49 +37,28 @@
     </div>
 
     <!-- 🔹 Modal -->
-    <div
-      v-if="showDialog"
-      class="fixed inset-0 bg-black/60 flex justify-center items-center z-50"
-      @click.self="closeDialog"
-    >
-      <div class="bg-white text-gray-900 rounded-lg p-6 w-96 shadow-2xl relative">
-        <h2 class="text-lg font-bold mb-4 text-center">Editar bloque {{ block.label }}</h2>
+    <v-dialog v-model="showDialog" max-width="420" transition="dialog-bottom-transition">
+      <v-card>
+        <v-card-title class="text-h6 font-weight-bold">
+          Editar bloque {{ block.label }}
+        </v-card-title>
 
-        <div class="flex flex-col gap-3">
-          <label class="text-sm font-semibold">Etiqueta:</label>
-          <input v-model="localBlock.label" class="border rounded p-2" />
+        <v-card-text>
+          <v-text-field label="Etiqueta" v-model="localBlock.label" density="comfortable" />
+          <v-text-field label="Texto" v-model="localBlock.text" density="comfortable" />
+          <v-textarea label="Anotaciones" v-model="localBlock.notes" rows="3" auto-grow />
+          <div class="mt-3">
+            <label class="text-sm font-semibold">Color:</label>
+            <input type="color" v-model="localBlock.color" class="ml-2 h-8 w-16 rounded border" />
+          </div>
+        </v-card-text>
 
-          <label class="text-sm font-semibold">Texto:</label>
-          <input v-model="localBlock.text" class="border rounded p-2" />
-
-          <label class="text-sm font-semibold">Anotaciones:</label>
-          <textarea
-            v-model="localBlock.notes"
-            rows="3"
-            class="border rounded p-2 resize-none"
-            placeholder="Notas adicionales sobre este bloque..."
-          ></textarea>
-
-          <label class="text-sm font-semibold">Color:</label>
-          <input type="color" v-model="localBlock.color" class="w-20 h-8 border rounded" />
-        </div>
-
-        <div class="flex justify-end gap-2 mt-4">
-          <button
-            @click="closeDialog"
-            class="px-3 py-1 rounded bg-gray-400 hover:bg-gray-500 text-white"
-          >
-            Cancelar
-          </button>
-          <button
-            @click="applyChanges"
-            class="px-3 py-1 rounded bg-green-600 hover:bg-green-700 text-white"
-          >
-            Guardar
-          </button>
-        </div>
-      </div>
-    </div>
+        <v-card-actions class="justify-end">
+          <v-btn text @click="showDialog = false">Cancelar</v-btn>
+          <v-btn color="green" variant="flat" @click="applyChanges">Guardar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
