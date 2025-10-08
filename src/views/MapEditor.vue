@@ -19,7 +19,7 @@
     </div>
 
     <!-- 🔹 Tablero principal ocupa toda la pantalla -->
-    <div ref="mapContainer" class="absolute inset-0 map-background" style="top: 3.5rem">
+    <div ref="mapContainer" class="inset-0 map-background" style="top: 3.5rem">
       <MapBlock v-for="b in store.blocks" :key="b.id" :block="b" />
     </div>
   </div>
@@ -42,9 +42,13 @@ onMounted(async () => {
 <style scoped>
 .map-background {
   position: absolute;
+  top: 3.5rem;
   left: 0;
   right: 0;
   bottom: 0;
+  overflow: auto;
+
+  /* 🌌 Fondo y cuadrícula */
   background: radial-gradient(circle at center, #222 0%, #111 100%);
   background-image:
     linear-gradient(
@@ -72,6 +76,12 @@ onMounted(async () => {
       transparent
     );
   background-size: 60px 60px;
+
+  /* 🧭 Tamaño expandible */
+  min-height: 150vh;
+  min-width: 150vw;
+
+  /* ⚙️ Borde y sombras */
   border: 6px double #333;
   border-radius: 14px;
   box-shadow:
